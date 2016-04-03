@@ -1,0 +1,26 @@
+name: Bedwars
+author: thatVainamo
+version: 1.0
+main: de.festivaldev.bedwars.Main
+commands:
+  bedwars.t1:
+    usage: /bedwars.t1
+    description:
+  bedwars.t2:
+    usage: /bedwars.t2
+    description:
+  bedwars.t3:
+    usage: /bedwars.t3
+    description:
+  createspawner:
+    usage: /createspawner [spawnrate]
+    description: Creates a spawner, spawning the item the player has in it's hand.
+  removespawner:
+    usage: /removespawner [spawner]
+    description: Removes a spawner.
+  disablespawner:
+    usage: /disablespawner
+    description: Disables all spawners.
+  enablespawner:
+    usage: /enablespawner
+    description: Enables all spawners.

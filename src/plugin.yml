@@ -13,8 +13,8 @@ commands:
     usage: /bedwars.t3
     description:
   createspawner:
-    usage: /createspawner [spawnrate]
-    description: Creates a spawner, spawning the item the player has in it's hand.
+    usage: /createspawner [spawnrate] [special]
+    description: Creates a spawner, spawning the item the player has in it's hand. Allows controlling an effect upon spawning.
   removespawner:
     usage: /removespawner [spawner]
     description: Removes a spawner.
@@ -24,3 +24,6 @@ commands:
   enablespawner:
     usage: /enablespawner
     description: Enables all spawners.
+  exportspawner:
+    usage: /exportspawner
+    description: Exports all spawners to JSON format.

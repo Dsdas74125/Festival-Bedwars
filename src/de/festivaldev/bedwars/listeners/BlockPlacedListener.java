@@ -26,7 +26,7 @@ public class BlockPlacedListener implements Listener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		ItemStack diy = new ItemStack(Material.QUARTZ_BLOCK, 1, (byte) 1);
 		if (event.getBlockPlaced().getType() == diy.getType()) {
-			Spawner spawner = new Spawner(new ItemStack(Material.NETHER_STAR, 1), 3, event.getBlockPlaced().getLocation(), plugin);
+			Spawner spawner = new Spawner(Material.NETHER_STAR, 3, event.getBlockPlaced().getLocation(), false);
 			plugin.spawners.add(spawner);
 			spawner.enabled = plugin.spawners.get(0).enabled;
 		}

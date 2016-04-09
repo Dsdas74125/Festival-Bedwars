@@ -1,4 +1,4 @@
-package de.festivaldev.bedwars.utilities;
+package de.festival.Bedwars.Helper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

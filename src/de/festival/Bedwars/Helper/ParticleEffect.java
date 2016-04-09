@@ -1,4 +1,4 @@
-package de.festivaldev.bedwars.utilities;
+package de.festival.Bedwars.Helper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.festivaldev.bedwars.utilities.ReflectionUtils.PackageType;
+import de.festival.Bedwars.Helper.ReflectionUtils.PackageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import de.festivaldev.bedwars.utilities.ReflectionUtils;
+import de.festival.Bedwars.Helper.ReflectionUtils;
 
 /**
  * <b>ParticleEffect Library</b>

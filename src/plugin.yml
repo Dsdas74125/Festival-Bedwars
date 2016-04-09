@@ -1,16 +1,19 @@
 name: Bedwars
-author: thatVainamo
+author: thatVainamo, Sniper_GER
 version: 1.0
-main: de.festivaldev.bedwars.Main
+main: de.festival.Bedwars.Main
 commands:
-  bedwars.t1:
-    usage: /bedwars.t1
-    description:
+  wp.reset:
+    usage: /wp.reset
+    description: Resets the world to its default state.
+  wp.enable:
+    usage: /wp.enable
+    description: Enables world protection.
+  wp.disable:
+    usage: /wp.disable
+    description: Disables world protection until next restart.
   bedwars.t2:
     usage: /bedwars.t2
-    description:
-  bedwars.t3:
-    usage: /bedwars.t3
     description:
   createspawner:
     usage: /createspawner [spawnrate] [special]

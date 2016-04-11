@@ -3,6 +3,9 @@ author: thatVainamo, Sniper_GER
 version: 1.0
 main: de.festival.Bedwars.Main
 commands:
+  bw.shop:
+    usage: /bw.shop
+    description:
   wp.reset:
     usage: /wp.reset
     description: Resets the world to its default state.

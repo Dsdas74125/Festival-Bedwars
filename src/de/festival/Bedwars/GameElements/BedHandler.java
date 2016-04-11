@@ -37,7 +37,11 @@ public class BedHandler implements Listener {
                 if (obj.get(world.getName()) != null) {
                     JSONObject loc = (JSONObject)obj.get(world.getName());
 
-                    for (Team team: plugin.teams) {
+                    Iterator it = plugin.teams.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry pair = (Map.Entry)it.next();
+                        Team team = (Team)pair.getValue();
+
                         JSONArray loc_coords = (JSONArray) loc.get(team.id);
 
                         bedLocations.put(team, new Location(world, (long)loc_coords.get(0), (long)loc_coords.get(1), (long)loc_coords.get(2)));
@@ -59,7 +63,12 @@ public class BedHandler implements Listener {
         Team playerTeam = this.plugin.teamMap.get(player.getUniqueId());
 
         if (!playerTeam.bed.getLocation().equals(part.locateFootPart().getLocation())) {
-            for (Team _team: this.plugin.teams) {
+
+            Iterator it = plugin.teams.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                Team _team = (Team)pair.getValue();
+
                 if (_team.bed.getLocation().equals(part.locateFootPart().getLocation())) {
                     for (Player player1: this.plugin.getServer().getOnlinePlayers()) {
                         player1.sendMessage("Das Bett von Team " + _team.teamColor.chatColor + _team.name + ChatColor.RESET + " wurde von " + playerTeam.teamColor.chatColor + player.getDisplayName() + ChatColor.RESET + " zerstört!");

@@ -1,13 +1,17 @@
 package de.festival.Bedwars;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import de.festival.Bedwars.GameElements.BedHandler;
 import de.festival.Bedwars.GameElements.Shop;
 import de.festival.Bedwars.GameElements.Spawner;
 import de.festival.Bedwars.GameElements.Team;
 import de.festival.Bedwars.Helper.ParticleEffect;
+import de.festival.Bedwars.Listener.ArmorStandClickListener;
 import de.festival.Bedwars.Listener.EntityInteractListener;
 import de.festival.Bedwars.Listener.ItemPickupListener;
 import de.festival.Bedwars.Utils.ScoreBoardManager;
+import de.festival.Bedwars.Utils.WorldConfig;
 import de.festival.Bedwars.Utils.WorldProtection;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -28,10 +32,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -41,8 +42,9 @@ public class Main extends JavaPlugin implements Listener {
 
     public Shop shop;
     public ArrayList<Spawner> spawners = new ArrayList<>();
-    public ArrayList<Team> teams = new ArrayList<>();
+    public Map<String, Team> teams = new HashMap<>();
     public Map<UUID, Team> teamMap = new HashMap<UUID, Team>();
+    public Map<String, WorldConfig> worldConfigs = new HashMap<>();
 
     public final static String spawnerprefix = ChatColor.DARK_PURPLE + "[Spawner] " + ChatColor.RESET;
     public ScoreBoardManager board = new ScoreBoardManager(this);
@@ -53,11 +55,12 @@ public class Main extends JavaPlugin implements Listener {
         protector = new WorldProtection(this);
         new EntityInteractListener(this);
         new ItemPickupListener(this);
+        new ArmorStandClickListener(this);
 
         shop = new Shop(this);
 
         // Load exported spawners
-        JSONParser parser = new JSONParser();
+        /*JSONParser parser = new JSONParser();
         try {
             FileReader fReader = new FileReader(getDataFolder().getAbsolutePath()+"/spawners.json");
             Object obj = parser.parse(fReader);
@@ -82,44 +85,42 @@ public class Main extends JavaPlugin implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
             getLogger().info("Could not load Bedwars spawners. Have you exported some before?");
+        }*/
+
+        // Setup teams
+        int teamSize = this.getConfig().getInt("team-size");
+        teams.put("red", new Team(this, "Rot", "red", Team.TeamColor.RED, teamSize));
+        teams.put("yellow", new Team(this, "Gelb", "yellow", Team.TeamColor.YELLOW, teamSize));
+        teams.put("green", new Team(this, "Grün", "green", Team.TeamColor.LIME, teamSize));
+        teams.put("blue", new Team(this, "Blau", "blue", Team.TeamColor.BLUE, teamSize));
+
+
+        JSONParser parser = new JSONParser();
+        try {
+            FileReader fReader = new FileReader(getDataFolder().getAbsolutePath()+"/worlds.json");
+            JSONObject obj = (JSONObject)parser.parse(fReader);
+
+            for (World world: getServer().getWorlds()) {
+                if (obj.get(world.getName()) != null) {
+                    WorldConfig config = new WorldConfig(this, world, (JSONObject)obj.get(world.getName()));
+                    worldConfigs.put(world.getName(), config);
+                }
+            }
+
+            fReader.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // Make spawners spawn things
         spawn();
 
-        // Setup teams
-        int teamSize = this.getConfig().getInt("team-size");
-        teams.add(new Team(this, "Rot", "red", Team.TeamColor.RED, teamSize));
-        teams.add(new Team(this, "Gelb", "yellow", Team.TeamColor.YELLOW, teamSize));
-        teams.add(new Team(this, "Grün", "green", Team.TeamColor.LIME, teamSize));
-        teams.add(new Team(this, "Blau", "blue", Team.TeamColor.BLUE, teamSize));
-
-
-        // Assign online players to random team
-        for (Player player: getServer().getOnlinePlayers()) {
-            int random = randInt(0, teams.size()-1);
-            //int random = 0;
-
-            if (!teams.get(random).isFull()) {
-                teams.get(random).addMember(player);
-                //teams.get(random).members.add(player.getUniqueId());
-                teamMap.put(player.getPlayer().getUniqueId(), teams.get(random));
-                player.sendMessage("Du bist in Team " + teams.get(random).teamColor.chatColor + teams.get(random).name);
-            } else {
-                for (int i=0; i<teams.size(); i++) {
-                    if (!teams.get(i).isFull()) {
-                        teams.get(i).addMember(player);
-                        teamMap.put(player.getPlayer().getUniqueId(), teams.get(i));
-                        player.sendMessage("Du bist in Team " + teams.get(i).teamColor.chatColor + teams.get(i).name);
-                        break;
-                    }
-                }
-            }
-
-            board.openScoreboard(player);
-        }
-
+        // Handle bed stuff
         bedHandler = new BedHandler(this);
+
+        // Update Scoreboard
+        board.updateScoreboard();
     }
 
     @Override
@@ -136,13 +137,18 @@ public class Main extends JavaPlugin implements Listener {
         }
         player = (Player) sender;
 
-        if (command.getName().equalsIgnoreCase("wp.reset")) {
+        if (command.getName().equalsIgnoreCase("bw.shop")) {
+            shop.openShop(player);
+            return true;
+        } else if (command.getName().equalsIgnoreCase("wp.reset")) {
             protector.destroyPlacedBlocks();
             return true;
         } else if (command.getName().equalsIgnoreCase("wp.enable")) {
             protector.enabled = true;
+            return true;
         } else if (command.getName().equalsIgnoreCase("wp.disable")) {
             protector.enabled = false;
+            return true;
         } else if (command.getName().equalsIgnoreCase("createspawner") && args.length >= 1) {
             Spawner spawner;
             if (args.length == 2) {
@@ -216,26 +222,32 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        int random = randInt(0, teams.size()-1);
-        teams.get(random).addMember(event.getPlayer());
-        teamMap.put(event.getPlayer().getUniqueId(), teams.get(random));
-        event.getPlayer().sendMessage("Du bist in Team "+teams.get(random).teamColor.chatColor+teams.get(random).name);
-
-        Location spawn_tp = new Location(event.getPlayer().getWorld(), 0.5, 54, 0.5);
+        //Location spawn_tp = new Location(event.getPlayer().getWorld(), 0.5, 54, 0.5);
+        Location spawn_tp = worldConfigs.get(event.getPlayer().getWorld().getName()).worldSpawn;
         event.getPlayer().teleport(spawn_tp);
         board.openScoreboard(event.getPlayer());
+
+        event.getPlayer().setLevel(0);
+        event.getPlayer().getInventory().clear();
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
+        Team _team = this.teamMap.get(event.getPlayer().getUniqueId());
+
+        if (_team != null) {
+            _team.removeMember(event.getPlayer());
+            teamMap.remove(event.getPlayer().getUniqueId());
+        }
+
         //System.out.println(randInt(0, teams.size()-1));
-        for (int i=0; i<teams.size(); i++) {
+        /*for (int i=0; i<teams.size(); i++) {
             if (teams.get(i).members.indexOf(event.getPlayer().getUniqueId()) != -1) {
                 int index = teams.get(i).members.indexOf(event.getPlayer().getUniqueId());
                 teams.get(i).members.remove(index);
                 teamMap.remove(event.getPlayer().getUniqueId());
             }
-        }
+        }*/
     }
 
     public void spawn() {

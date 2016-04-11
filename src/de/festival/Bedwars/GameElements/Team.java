@@ -13,6 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -74,6 +75,11 @@ public class Team implements Listener {
             this.members.set(this.members.indexOf(null), player.getUniqueId());
         }
     }
+    public void removeMember(Player player) {
+        if (this.members.indexOf(player.getUniqueId()) != -1) {
+            this.members.set(this.members.indexOf(player.getUniqueId()), null);
+        }
+    }
 
     public boolean isFull() {
         if (this.members.indexOf(null) != -1) {
@@ -88,7 +94,6 @@ public class Team implements Listener {
 
         for (int i=0; i<this.members.size(); i++) {
             if (this.members.get(i) instanceof UUID) {
-                System.out.println(this.members.get(i));
                 _members++;
             }
         }
@@ -114,6 +119,13 @@ public class Team implements Listener {
                     event.setCancelled(true);
                 }
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (this.members.indexOf(event.getPlayer().getUniqueId()) != -1) {
+            event.setRespawnLocation(this.plugin.worldConfigs.get(event.getPlayer().getLocation().getWorld().getName()).teamSpawns.get(this));
         }
     }
 }

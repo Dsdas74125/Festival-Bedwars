@@ -32,11 +32,25 @@ public class ScoreBoardManager {
         objective.getScore("-1").setScore(16);
         objective.getScore("  ").setScore(15);
 
-        objective.getScore(this.plugin.teams.get(0).teamColor.chatColor + "❤ Rot").setScore(this.plugin.teams.get(0).getActiveMembers());
-        objective.getScore(this.plugin.teams.get(1).teamColor.chatColor + "❤ Gelb").setScore(this.plugin.teams.get(1).getActiveMembers());
-        objective.getScore(this.plugin.teams.get(2).teamColor.chatColor + "❤ Grün").setScore(this.plugin.teams.get(2).getActiveMembers());
-        objective.getScore(this.plugin.teams.get(3).teamColor.chatColor + "❤ Blau").setScore(this.plugin.teams.get(3).getActiveMembers());
+        objective.getScore(this.plugin.teams.get("red").teamColor.chatColor + "❤ Rot").setScore(this.plugin.teams.get("red").getActiveMembers());
+        objective.getScore(this.plugin.teams.get("yellow").teamColor.chatColor + "❤ Gelb").setScore(this.plugin.teams.get("yellow").getActiveMembers());
+        objective.getScore(this.plugin.teams.get("green").teamColor.chatColor + "❤ Grün").setScore(this.plugin.teams.get("green").getActiveMembers());
+        objective.getScore(this.plugin.teams.get("blue").teamColor.chatColor + "❤ Blau").setScore(this.plugin.teams.get("blue").getActiveMembers());
 
         player.setScoreboard(board);
+    }
+
+    public void updateScoreboard() {
+        for (Player player: this.plugin.getServer().getOnlinePlayers()) {
+            Scoreboard board = player.getScoreboard();
+            Objective objective = board.getObjective("teams");
+
+            objective.getScore(this.plugin.teams.get("red").teamColor.chatColor + "❤ Rot").setScore(this.plugin.teams.get("red").getActiveMembers());
+            objective.getScore(this.plugin.teams.get("yellow").teamColor.chatColor + "❤ Gelb").setScore(this.plugin.teams.get("yellow").getActiveMembers());
+            objective.getScore(this.plugin.teams.get("green").teamColor.chatColor + "❤ Grün").setScore(this.plugin.teams.get("green").getActiveMembers());
+            objective.getScore(this.plugin.teams.get("blue").teamColor.chatColor + "❤ Blau").setScore(this.plugin.teams.get("blue").getActiveMembers());
+
+            player.setScoreboard(board);
+        }
     }
 }

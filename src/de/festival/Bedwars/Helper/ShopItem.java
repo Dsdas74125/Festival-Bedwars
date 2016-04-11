@@ -107,11 +107,14 @@ public class ShopItem {
                 ItemStack purchasedItem = this.getItemStack();
                 purchasedItem.setAmount(1);
 
-                if (this.itemStack.getItemMeta() instanceof LeatherArmorMeta) {
-                    LeatherArmorMeta meta = (LeatherArmorMeta)this.itemStack.getItemMeta();
+                if (this.isTeamColored) {
+                    if (this.itemStack.getItemMeta() instanceof LeatherArmorMeta) {
+                        LeatherArmorMeta meta = (LeatherArmorMeta) this.itemStack.getItemMeta();
 
-                    meta.setColor(this.team.teamColor.color.getColor());
-                    this.itemStack.setItemMeta(meta);
+                        meta.setColor(this.team.teamColor.color.getColor());
+                        this.itemStack.setItemMeta(meta);
+                    } else {
+                    }
                 }
 
                 if (!player.getInventory().contains(purchasedItem.getType())) {
